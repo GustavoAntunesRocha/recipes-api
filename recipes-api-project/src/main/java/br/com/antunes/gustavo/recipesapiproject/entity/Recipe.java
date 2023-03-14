@@ -31,7 +31,7 @@ public class Recipe {
 
     private String name;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
         name = "recipe_tag",
         joinColumns = @JoinColumn(name = "recipe_id"),

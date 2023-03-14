@@ -3,8 +3,9 @@ package br.com.antunes.gustavo.recipesapiproject.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import br.com.antunes.gustavo.recipesapiproject.dto.RecipeDto;
@@ -15,15 +16,30 @@ import br.com.antunes.gustavo.recipesapiproject.entity.Section;
 import br.com.antunes.gustavo.recipesapiproject.entity.Tag;
 import br.com.antunes.gustavo.recipesapiproject.exception.CustomException;
 import br.com.antunes.gustavo.recipesapiproject.repository.RecipeRepository;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class RecipeService {
 
-    @Autowired
-    private RecipeRepository recipeRepository;
+    private final RecipeRepository recipeRepository;
+    
+    private static final ModelMapper modelMapper = new ModelMapper();
 
     public Recipe saveRecipe(Recipe recipe) {
         return recipeRepository.save(recipe);
+    }
+    
+    public Recipe updateRecipe(int id, RecipeDto recipeDto) {
+    	Optional<Recipe> recipeOptional = recipeRepository.findById(id);
+        if(recipeOptional.isPresent()) {
+        	Recipe recipe = recipeOptional.get();
+        	recipe = toEntity(recipeDto); 
+            return recipe;
+        }
+        else {
+            throw new CustomException("Recipe with id " + id + " not found");
+        }
     }
 
     public Recipe getRecipeById(int id) {
@@ -63,14 +79,37 @@ public class RecipeService {
         }
         recipeDto.setSections(sectionDtos);
         List<TagDto> tagDtos = new ArrayList<>();
-        for (Tag tag : recipe.getTags()) {
-            TagDto tagDto = new TagDto();
-            tagDto.setId(tag.getId());
-            tagDto.setName(tag.getName());
-            tagDtos.add(tagDto);
+        if(recipe.getTags() != null) {
+	        for (Tag tag : recipe.getTags()) {
+	            TagDto tagDto = new TagDto();
+	            tagDto.setId(tag.getId());
+	            tagDto.setName(tag.getName());
+	            tagDtos.add(tagDto);
+	        }
         }
         recipeDto.setTags(tagDtos);
         return recipeDto;
+    }
+    
+    public Recipe toEntity(RecipeDto recipeDTO) {
+        Recipe recipe = modelMapper.map(recipeDTO, Recipe.class);
+        
+        // Map tags
+        if(recipeDTO.getTags() != null) {
+        	List<Tag> tags = recipeDTO.getTags().stream()
+        			.map(tagDTO -> modelMapper.map(tagDTO, Tag.class))
+        			.collect(Collectors.toList());
+        	recipe.setTags(tags);
+        	
+        }
+        
+        // Map sections
+        List<Section> sections = recipeDTO.getSections().stream()
+                .map(sectionDTO -> modelMapper.map(sectionDTO, Section.class))
+                .collect(Collectors.toList());
+        recipe.setSections(sections);
+        
+        return recipe;
     }
 
 

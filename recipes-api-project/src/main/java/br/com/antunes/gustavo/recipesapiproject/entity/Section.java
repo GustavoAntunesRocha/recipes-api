@@ -23,12 +23,12 @@ public class Section {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private int id;
 
-    private String nome;
+    private String name;
 
     @ElementCollection
     @CollectionTable(name = "section_content", joinColumns = @JoinColumn(name = "section_id"))
-    private List<String> conteudo;
+    private List<String> contents;
 
 }

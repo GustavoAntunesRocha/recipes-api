@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import br.com.antunes.gustavo.recipesapiproject.dto.SectionDto;
 import br.com.antunes.gustavo.recipesapiproject.entity.Section;
 import br.com.antunes.gustavo.recipesapiproject.exception.CustomException;
 import br.com.antunes.gustavo.recipesapiproject.repository.SectionRepository;
@@ -43,5 +44,13 @@ public class SectionService {
             throw new CustomException("Section with id " + id + " not found");
         }
     }
+    
+    public SectionDto mapToDto(Section section) {
+        SectionDto sectionDto = new SectionDto();
+        sectionDto.setName(section.getName());
+        sectionDto.setContents(section.getContents());
+        return sectionDto;
+    }
+
 
 }

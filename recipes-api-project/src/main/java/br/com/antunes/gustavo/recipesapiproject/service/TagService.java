@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import br.com.antunes.gustavo.recipesapiproject.dto.TagDto;
 import br.com.antunes.gustavo.recipesapiproject.entity.Tag;
 import br.com.antunes.gustavo.recipesapiproject.exception.CustomException;
 import br.com.antunes.gustavo.recipesapiproject.repository.TagRepository;
@@ -43,5 +44,13 @@ public class TagService {
             throw new CustomException("Tag with id " + id + " not found");
         }
     }
+    
+    public TagDto mapToDto(Tag tag) {
+        TagDto tagDto = new TagDto();
+        tagDto.setId(tag.getId());
+        tagDto.setName(tag.getName());
+        return tagDto;
+    }
+
 
 }

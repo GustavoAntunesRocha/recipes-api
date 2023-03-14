@@ -27,9 +27,9 @@ public class Recipe {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private String id;
+    private int id;
 
-    private String nome;
+    private String name;
 
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
@@ -40,13 +40,13 @@ public class Recipe {
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "recipe_id", referencedColumnName = "id")
-    private List<Section> secao;
+    private List<Section> sections;
 
-	public Recipe(String nome, List<Tag> tags, List<Section> secao) {
+	public Recipe(String name, List<Tag> tags, List<Section> sections) {
 		super();
-		this.nome = nome;
+		this.name = name;
 		this.tags = tags;
-		this.secao = secao;
+		this.sections = sections;
 	}
 	
 	public void addTag(Tag tag) {

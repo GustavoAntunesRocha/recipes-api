@@ -24,6 +24,8 @@ public class RecipeService {
 
     private final RecipeRepository recipeRepository;
     
+    private final TagService tagService;
+    
     private static final ModelMapper modelMapper = new ModelMapper();
 
     public Recipe saveRecipe(Recipe recipe) {
@@ -96,10 +98,14 @@ public class RecipeService {
         
         // Map tags
         if(recipeDTO.getTags() != null) {
-        	List<Tag> tags = recipeDTO.getTags().stream()
-        			.map(tagDTO -> modelMapper.map(tagDTO, Tag.class))
-        			.collect(Collectors.toList());
-        	recipe.setTags(tags);
+        	List<String> tagsNames = new ArrayList<>();
+        	for (TagDto tagDTO : recipeDTO.getTags()) {
+				tagsNames.add(tagDTO.getName());
+			}
+//        	List<Tag> tags = recipeDTO.getTags().stream()
+//        			.map(tagDTO -> modelMapper.map(tagDTO, Tag.class))
+//        			.collect(Collectors.toList());
+        	recipe.setTags(tagService.mapTagNamesToEntities(tagsNames));
         	
         }
         

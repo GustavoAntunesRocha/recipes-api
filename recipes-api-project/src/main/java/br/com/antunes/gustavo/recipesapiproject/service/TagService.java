@@ -1,5 +1,6 @@
 package br.com.antunes.gustavo.recipesapiproject.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,7 +19,10 @@ public class TagService {
     private TagRepository tagRepository;
 
     public Tag saveTag(Tag tag) {
-        return tagRepository.save(tag);
+    	if(searchTagByName(tag.getName()) != null){
+    		return tagRepository.save(tag);    		
+    	}
+    	throw new CustomException("Tag with the name: " + tag.getName() + " already exists!");
     }
 
     public Tag getTagById(int id) {
@@ -51,6 +55,24 @@ public class TagService {
         tagDto.setName(tag.getName());
         return tagDto;
     }
+    
+    public List<Tag> mapTagNamesToEntities(List<String> tagNames) {
+        List<Tag> tags = new ArrayList<>();
+        for (String tagName : tagNames) {
+            Tag tag = searchTagByName(tagName);
+            if (tag == null) {
+                tag = new Tag();
+                tag.setName(tagName);
+                saveTag(tag);
+            }
+            tags.add(tag);
+        }
+        return tags;
+    }
+
+	public Tag searchTagByName(String tagName) {
+		return tagRepository.findByName(tagName);
+	}
 
 
 }

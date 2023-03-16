@@ -30,7 +30,7 @@ public class Section {
 
     @ElementCollection
     @CollectionTable(name = "section_content", joinColumns = @JoinColumn(name = "section_id"))
-    @Column(name = "content", length = 1000)
+    @Column(name = "content", length = 5000)
     private List<String> contents;
 
 }

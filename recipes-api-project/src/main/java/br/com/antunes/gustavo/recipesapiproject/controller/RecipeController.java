@@ -2,6 +2,7 @@ package br.com.antunes.gustavo.recipesapiproject.controller;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,6 +39,14 @@ public class RecipeController {
     public ResponseEntity<RecipeDto> createRecipe(@RequestBody RecipeDto recipeDto) {
         RecipeDto savedRecipeDto = recipeService.mapToDto(recipeService.saveRecipe(recipeService.toEntity(recipeDto)));
         return ResponseEntity.status(HttpStatus.CREATED).body(savedRecipeDto);
+    }
+    
+    @PostMapping("/multiple")
+    public ResponseEntity<RecipeDto> createMultipleRecipe(@RequestBody List<RecipeDto> recipeDtoList) {
+    	for (RecipeDto recipeDto : recipeDtoList) {
+    		recipeService.saveRecipe(recipeService.toEntity(recipeDto));
+		}
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PutMapping("/{id}")

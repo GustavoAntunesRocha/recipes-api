@@ -19,7 +19,7 @@ public class TagService {
     private TagRepository tagRepository;
 
     public Tag saveTag(Tag tag) {
-    	if(searchTagByName(tag.getName()) != null){
+    	if(searchTagByName(tag.getName()) == null){
     		return tagRepository.save(tag);    		
     	}
     	throw new CustomException("Tag with the name: " + tag.getName() + " already exists!");
@@ -42,6 +42,9 @@ public class TagService {
     public void deleteTag(int id) {
         Optional<Tag> tag = tagRepository.findById(id);
         if(tag.isPresent()) {
+        	if(!tag.get().getRecipes().isEmpty()) {
+        		throw new CustomException("Tag with id " + id + " it's in use!");
+        	}
             tagRepository.deleteById(id);
         }
         else {

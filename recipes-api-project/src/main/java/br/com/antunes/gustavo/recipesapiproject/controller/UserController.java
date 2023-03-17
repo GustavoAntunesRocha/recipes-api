@@ -1,5 +1,7 @@
 package br.com.antunes.gustavo.recipesapiproject.controller;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.antunes.gustavo.recipesapiproject.dto.UserDTO;
 import br.com.antunes.gustavo.recipesapiproject.entity.UserEntity;
+import br.com.antunes.gustavo.recipesapiproject.exception.ApiErrorResponse;
 import br.com.antunes.gustavo.recipesapiproject.exception.CustomException;
 import br.com.antunes.gustavo.recipesapiproject.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -45,12 +48,18 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "Invalid input"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    public ResponseEntity<UserDTO> createUser(@RequestBody @Valid UserDTO userDTO,
+    public ResponseEntity<?> createUser(@RequestBody @Valid UserDTO userDTO,
                                                 @RequestParam @Parameter(description = "User password") String password) {
         UserEntity user = modelMapper.map(userDTO, UserEntity.class);
         user.setPassword(password);
-        UserDTO createdUserDTO = userService.createUser(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdUserDTO);
+        UserDTO createdUserDTO;
+		try {
+			createdUserDTO = userService.createUser(user);
+			return ResponseEntity.status(HttpStatus.CREATED).body(createdUserDTO);
+		} catch (CustomException e) {
+			return new ResponseEntity<>(handleCustomException(e, HttpStatus.BAD_REQUEST), HttpStatus.BAD_REQUEST);
+		}
+        
     }
 
     @GetMapping("/{id}")
@@ -61,10 +70,13 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "User not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    public ResponseEntity<UserDTO> getUserById(@PathVariable @Parameter(description = "User ID") int id)
-            throws CustomException {
-        UserDTO userDTO = userService.getUserById(id);
-        return ResponseEntity.ok(userDTO);
+    public ResponseEntity<?> getUserById(@PathVariable @Parameter(description = "User ID") int id){
+        try {
+			UserDTO userDTO = userService.getUserById(id);
+			return ResponseEntity.ok(userDTO);
+		} catch (CustomException e) {
+			return new ResponseEntity<>(handleCustomException(e, HttpStatus.NOT_FOUND), HttpStatus.NOT_FOUND);
+		}
     }
 
     @GetMapping("/email/{email}")
@@ -75,10 +87,13 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "User not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    public ResponseEntity<UserDTO> getUserByEmail(@PathVariable @Parameter(description = "User email") String email)
-            throws CustomException {
-        UserDTO userDTO = userService.getUserByEmail(email);
-        return ResponseEntity.ok(userDTO);
+    public ResponseEntity<?> getUserByEmail(@PathVariable @Parameter(description = "User email") String email){
+        try {
+			UserDTO userDTO = userService.getUserByEmail(email);
+			return ResponseEntity.ok(userDTO);
+		} catch (CustomException e) {
+			return new ResponseEntity<>(handleCustomException(e, HttpStatus.NOT_FOUND), HttpStatus.NOT_FOUND);
+		}
     }
 
     @GetMapping
@@ -99,12 +114,15 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "User updated successfully"),
             @ApiResponse(responseCode = "404", description = "User not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")})
-    public ResponseEntity<Void> updateUser(@PathVariable int id, @RequestBody UserDTO userDTO)
-            throws CustomException {
-    	UserEntity user = modelMapper.map(userDTO, UserEntity.class);
-        user.setId(id);
-        userService.updateUser(user);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<?> updateUser(@PathVariable int id, @RequestBody UserDTO userDTO){
+    	try {
+			UserEntity user = modelMapper.map(userDTO, UserEntity.class);
+			user.setId(id);
+			userService.updateUser(user);
+			return ResponseEntity.ok().build();
+		} catch (CustomException e) {
+			return new ResponseEntity<>(handleCustomException(e, HttpStatus.NOT_FOUND), HttpStatus.NOT_FOUND);
+		}
     }
 
     @DeleteMapping("/{id}")
@@ -113,9 +131,20 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "User deleted successfully"),
             @ApiResponse(responseCode = "404", description = "User not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")})
-    public ResponseEntity<Void> deleteUserById(@PathVariable int id) throws CustomException {
-        userService.deleteUserById(id);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<?> deleteUserById(@PathVariable int id){
+        try {
+			userService.deleteUserById(id);
+			return ResponseEntity.ok().build();
+		} catch (CustomException e) {
+			return new ResponseEntity<>(handleCustomException(e, HttpStatus.NOT_FOUND), HttpStatus.NOT_FOUND);
+		}
     }
+    
+    public ApiErrorResponse handleCustomException(CustomException e, HttpStatus status) {
+		LocalDateTime timestamp = LocalDateTime.now();
+		ApiErrorResponse errorResponse = new ApiErrorResponse(status.toString(),
+				DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss").format(timestamp), e.getMessage());
+		return errorResponse;
+	}
 
 }

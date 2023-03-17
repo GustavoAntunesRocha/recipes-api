@@ -26,8 +26,11 @@ public class UserService {
     private final ObjectMapper objectMapper;
     private final BCryptPasswordEncoder passwordEncoder;
 
-    public UserDTO createUser(UserEntity user) {
+    public UserDTO createUser(UserEntity user) throws CustomException  {
     	user.setPassword(passwordEncoder.encode(user.getPassword()));
+    	if(userRepository.findByEmail(user.getEmail()) != null) {
+    		throw new CustomException("User with the email: " + user.getEmail() +" already exists!");
+    	}
     	UserEntity savedUser = userRepository.save(user);
         return modelMapper.map(savedUser, UserDTO.class);
     }

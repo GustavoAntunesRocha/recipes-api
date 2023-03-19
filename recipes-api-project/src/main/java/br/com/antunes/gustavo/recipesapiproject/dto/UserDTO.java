@@ -1,5 +1,6 @@
 package br.com.antunes.gustavo.recipesapiproject.dto;
 
+import br.com.antunes.gustavo.recipesapiproject.entity.Role;
 import br.com.antunes.gustavo.recipesapiproject.entity.UserEntity;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -14,12 +15,12 @@ public class UserDTO {
     @NotBlank
     private String email;
 
-    private String role;
+    private Role role;
 
     public UserDTO() {
     }
 
-    public UserDTO(int id, String email, String role) {
+    public UserDTO(int id, String email, Role role) {
         this.id = id;
         this.email = email;
         this.role = role;

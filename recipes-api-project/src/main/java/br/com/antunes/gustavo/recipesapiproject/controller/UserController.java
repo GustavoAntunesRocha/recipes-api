@@ -39,8 +39,21 @@ public class UserController {
 
     private final UserService userService;
     private final ModelMapper modelMapper;
+    
+    @Operation(description = "Endpoint for user authentication and to obtain an access token", responses = {
+			@ApiResponse(responseCode = "200", description = "Successfully authenticated and received an access token", 
+				content = @Content(mediaType = "application/json", schema = @Schema(implementation = LoginResponse.class))),
+			@ApiResponse(responseCode = "400", description = "Invalid login request or missing request parameters",
+				content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiErrorResponse.class))),
+			@ApiResponse(responseCode = "401", description = "Unauthorized access or invalid credentials",
+				content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiErrorResponse.class)))
+	})
+	@PostMapping("/login")
+	public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
+		return ResponseEntity.ok(userService.authenticate(request));
+	}
 
-    @PostMapping
+    @PostMapping("/create")
     @Operation(summary = "Create a user", description = "Creates a new user and returns the created user")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "User created successfully",

@@ -7,5 +7,5 @@ import br.com.antunes.gustavo.recipesapiproject.entity.UserEntity;
 public interface UserRepository extends JpaRepository<UserEntity, Integer>{
 
 	UserEntity findByEmail(String email);
-
+	
 }

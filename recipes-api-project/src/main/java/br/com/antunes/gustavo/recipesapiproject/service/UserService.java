@@ -5,17 +5,24 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import br.com.antunes.gustavo.recipesapiproject.controller.LoginRequest;
+import br.com.antunes.gustavo.recipesapiproject.controller.LoginResponse;
 import br.com.antunes.gustavo.recipesapiproject.dto.UserDTO;
 import br.com.antunes.gustavo.recipesapiproject.entity.UserEntity;
 import br.com.antunes.gustavo.recipesapiproject.exception.CustomException;
 import br.com.antunes.gustavo.recipesapiproject.repository.UserRepository;
+import br.com.antunes.gustavo.recipesapiproject.security.JwtService;
 import lombok.RequiredArgsConstructor;
+import lombok.var;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +32,23 @@ public class UserService {
     private final ModelMapper modelMapper;
     private final ObjectMapper objectMapper;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
+    
+	public LoginResponse authenticate(LoginRequest request) {
+		try {
+			authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+			var user = userRepository.findByEmail(request.getEmail());
+			var jwt = jwtService.generateToken(user);
+			return LoginResponse.builder()
+					.accesToken(jwt)
+					.build();
+		} catch (AuthenticationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+	}
 
     public UserDTO createUser(UserEntity user) throws CustomException  {
     	user.setPassword(passwordEncoder.encode(user.getPassword()));

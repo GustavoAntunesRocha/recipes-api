@@ -6,6 +6,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import br.com.antunes.gustavo.recipesapiproject.dto.RecipeDto;
@@ -57,6 +59,10 @@ public class RecipeService {
     public List<Recipe> getAllRecipes() {
         return recipeRepository.findAll();
     }
+    
+    public Page<Recipe> getAllRecipes(Pageable pageable) {
+        return recipeRepository.findAll(pageable);
+    }
 
     public void deleteRecipe(int id) {
         Optional<Recipe> recipe = recipeRepository.findById(id);
@@ -102,9 +108,6 @@ public class RecipeService {
         	for (TagDto tagDTO : recipeDTO.getTags()) {
 				tagsNames.add(tagDTO.getName());
 			}
-//        	List<Tag> tags = recipeDTO.getTags().stream()
-//        			.map(tagDTO -> modelMapper.map(tagDTO, Tag.class))
-//        			.collect(Collectors.toList());
         	recipe.setTags(tagService.mapTagNamesToEntities(tagsNames));
         	
         }
@@ -117,6 +120,10 @@ public class RecipeService {
         
         return recipe;
     }
+
+	public Page<Recipe> searchRecipeByName(String name, Pageable paging) {
+		return recipeRepository.findByNameContainingIgnoreCase(name, paging);
+	}
 
 
 }

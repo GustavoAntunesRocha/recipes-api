@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import br.com.antunes.gustavo.recipesapiproject.dto.TagDto;
@@ -37,6 +39,10 @@ public class TagService {
 
     public List<Tag> getAllTags() {
         return tagRepository.findAll();
+    }
+    
+    public Page<Tag> getAllTags(Pageable pageable) {
+        return tagRepository.findAll(pageable);
     }
 
     public void deleteTag(int id) {
@@ -75,6 +81,10 @@ public class TagService {
 
 	public Tag searchTagByName(String tagName) {
 		return tagRepository.findByName(tagName);
+	}
+	
+	public Page<Tag> searchTagByName(String name, Pageable pageable){
+		return tagRepository.findByName(name, pageable);
 	}
 
 

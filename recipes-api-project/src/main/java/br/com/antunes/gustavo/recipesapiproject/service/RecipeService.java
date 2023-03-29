@@ -2,7 +2,6 @@ package br.com.antunes.gustavo.recipesapiproject.service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -35,25 +34,13 @@ public class RecipeService {
     }
     
     public Recipe updateRecipe(int id, RecipeDto recipeDto) {
-    	Optional<Recipe> recipeOptional = recipeRepository.findById(id);
-        if(recipeOptional.isPresent()) {
-        	Recipe recipe = recipeOptional.get();
-        	recipe = toEntity(recipeDto); 
-            return recipe;
-        }
-        else {
-            throw new CustomException("Recipe with id " + id + " not found");
-        }
+    	Recipe recipe = recipeRepository.findById(id).orElseThrow(() -> new CustomException("Recipe with id " + id + " not found"));
+        recipe = toEntity(recipeDto); 
+        return recipe;
     }
 
     public Recipe getRecipeById(int id) {
-        Optional<Recipe> recipe = recipeRepository.findById(id);
-        if(recipe.isPresent()) {
-            return recipe.get();
-        }
-        else {
-            throw new CustomException("Recipe with id " + id + " not found");
-        }
+        return recipeRepository.findById(id).orElseThrow(() -> new CustomException("Recipe with id " + id + " not found"));
     }
 
     public List<Recipe> getAllRecipes() {
@@ -65,13 +52,8 @@ public class RecipeService {
     }
 
     public void deleteRecipe(int id) {
-        Optional<Recipe> recipe = recipeRepository.findById(id);
-        if(recipe.isPresent()) {
-            recipeRepository.deleteById(id);
-        }
-        else {
-            throw new CustomException("Recipe with id " + id + " not found");
-        }
+        Recipe recipe = recipeRepository.findById(id).orElseThrow(() -> new CustomException("Recipe with id " + id + " not found"));
+        recipeRepository.delete(recipe);
     }
     
     public RecipeDto mapToDto(Recipe recipe) {

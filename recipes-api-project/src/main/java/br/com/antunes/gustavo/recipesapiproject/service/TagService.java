@@ -2,7 +2,6 @@ package br.com.antunes.gustavo.recipesapiproject.service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -28,13 +27,7 @@ public class TagService {
     }
 
     public Tag getTagById(int id) {
-        Optional<Tag> tag = tagRepository.findById(id);
-        if(tag.isPresent()) {
-            return tag.get();
-        }
-        else {
-            throw new CustomException("Tag with id " + id + " not found");
-        }
+        return tagRepository.findById(id).orElseThrow(() -> new CustomException("Tag with id " + id + " not found"));
     }
 
     public List<Tag> getAllTags() {
@@ -46,16 +39,11 @@ public class TagService {
     }
 
     public void deleteTag(int id) {
-        Optional<Tag> tag = tagRepository.findById(id);
-        if(tag.isPresent()) {
-        	if(!tag.get().getRecipes().isEmpty()) {
-        		throw new CustomException("Tag with id " + id + " it's in use!");
-        	}
-            tagRepository.deleteById(id);
+        Tag tag = tagRepository.findById(id).orElseThrow(() -> new CustomException("Tag with id " + id + " not found"));
+        if(!tag.getRecipes().isEmpty()) {
+        	throw new CustomException("Tag with id " + id + " it's in use!");
         }
-        else {
-            throw new CustomException("Tag with id " + id + " not found");
-        }
+        tagRepository.deleteById(id);
     }
     
     public TagDto mapToDto(Tag tag) {

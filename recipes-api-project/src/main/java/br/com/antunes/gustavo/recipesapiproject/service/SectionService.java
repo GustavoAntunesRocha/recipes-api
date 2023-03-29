@@ -1,7 +1,6 @@
 package br.com.antunes.gustavo.recipesapiproject.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,13 +21,7 @@ public class SectionService {
     }
 
     public Section getSectionById(int id) {
-        Optional<Section> section = sectionRepository.findById(id);
-        if(section.isPresent()) {
-            return section.get();
-        }
-        else {
-            throw new CustomException("Section with id " + id + " not found");
-        }
+        return sectionRepository.findById(id).orElseThrow(() -> new CustomException("Section with id " + id + " not found"));
     }
 
     public List<Section> getAllSections() {
@@ -36,13 +29,8 @@ public class SectionService {
     }
 
     public void deleteSection(int id) {
-        Optional<Section> section = sectionRepository.findById(id);
-        if(section.isPresent()) {
-            sectionRepository.deleteById(id);
-        }
-        else {
-            throw new CustomException("Section with id " + id + " not found");
-        }
+        Section section = sectionRepository.findById(id).orElseThrow(() -> new CustomException("Section with id " + id + " not found"));
+        sectionRepository.delete(section);
     }
     
     public SectionDto mapToDto(Section section) {

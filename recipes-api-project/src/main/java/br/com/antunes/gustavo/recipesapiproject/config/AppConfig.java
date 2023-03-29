@@ -12,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import br.com.antunes.gustavo.recipesapiproject.exception.CustomException;
 import br.com.antunes.gustavo.recipesapiproject.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -37,7 +38,7 @@ public class AppConfig {
 			
 			@Override
 			public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-				UserDetails userDetails = userRepository.findByEmail(username);
+				UserDetails userDetails = userRepository.findByEmail(username).orElseThrow(() -> new CustomException("User not found with email " + username));
 				return userDetails;
 			}
 		};

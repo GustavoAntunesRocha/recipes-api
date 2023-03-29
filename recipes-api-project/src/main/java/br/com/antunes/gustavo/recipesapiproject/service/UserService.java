@@ -1,7 +1,6 @@
 package br.com.antunes.gustavo.recipesapiproject.service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -37,7 +36,7 @@ public class UserService {
 	public LoginResponse authenticate(LoginRequest request) {
 		try {
 			authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
-			var user = userRepository.findByEmail(request.getEmail());
+			var user = userRepository.findByEmail(request.getEmail()).orElseThrow(() -> new CustomException("User not found with email " + request.getEmail()));
 			var jwt = jwtService.generateToken(user);
 			return LoginResponse.builder()
 					.accesToken(jwt)
@@ -59,28 +58,17 @@ public class UserService {
     }
 
     public UserDTO getUserById(int id) throws CustomException {
-        Optional<UserEntity> optionalUser = userRepository.findById(id);
-        if (optionalUser.isPresent()) {
-            return modelMapper.map(optionalUser.get(), UserDTO.class);
-        } else {
-            throw new CustomException("User not found with ID " + id);
-        }
+        UserEntity user = userRepository.findById(id).orElseThrow(() -> new CustomException("User not found with ID " + id));
+        return modelMapper.map(user, UserDTO.class);
     }
 
     public UserDTO getUserByEmail(String email) throws CustomException {
-    	UserEntity user = userRepository.findByEmail(email);
-        if (user == null) {
-            throw new CustomException("User not found with email " + email);
-        }
+    	UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException("User not found with email " + email));
         return modelMapper.map(user, UserDTO.class);
     }
     
     public UserEntity findUserByEmail(String email) throws CustomException {
-    	UserEntity user = userRepository.findByEmail(email);
-        if (user == null) {
-            throw new CustomException("User not found with email " + email);
-        }
-        return user;
+    	return userRepository.findByEmail(email).orElseThrow(() -> new CustomException("User not found with email " + email));
     }
 
     public List<UserDTO> getAllUsers() {
@@ -91,22 +79,14 @@ public class UserService {
     }
 
     public UserDTO updateUser(UserEntity user) throws CustomException {
-        Optional<UserEntity> optionalUser = userRepository.findById(user.getId());
-        if (optionalUser.isPresent()) {
-        	UserEntity savedUser = userRepository.save(user);
-            return modelMapper.map(savedUser, UserDTO.class);
-        } else {
-            throw new CustomException("User not found with ID " + user.getId());
-        }
+    	userRepository.findById(user.getId()).orElseThrow(() -> new CustomException("User not found with ID " + user.getId()));
+        UserEntity savedUser = userRepository.save(user);
+        return modelMapper.map(savedUser, UserDTO.class);
     }
 
     public void deleteUserById(int id) throws CustomException {
-        Optional<UserEntity> optionalUser = userRepository.findById(id);
-        if (optionalUser.isPresent()) {
-            userRepository.deleteById(id);
-        } else {
-            throw new CustomException("User not found with ID " + id);
-        }
+        UserEntity user = userRepository.findById(id).orElseThrow(() -> new CustomException("User not found with ID " + id));;
+        userRepository.delete(user);
     }
 
     public String getUserDTOAsJson(int id) throws CustomException, JsonProcessingException {

@@ -22,7 +22,6 @@ import br.com.antunes.gustavo.recipesapiproject.exception.CustomException;
 import br.com.antunes.gustavo.recipesapiproject.repository.UserRepository;
 import br.com.antunes.gustavo.recipesapiproject.security.JwtService;
 import lombok.RequiredArgsConstructor;
-import lombok.var;
 
 @Service
 @RequiredArgsConstructor
